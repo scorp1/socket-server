@@ -1,0 +1,58 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "fdb7dac34ad89c06cde66942202e3243",
+    "packages": [
+        {
+            "name": "beloplotov/balance",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scorp1/balance.git",
+                "reference": "6838a41be2f352bb883076753309124408f71ae6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scorp1/balance/zipball/6838a41be2f352bb883076753309124408f71ae6",
+                "reference": "6838a41be2f352bb883076753309124408f71ae6",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Beloplotov\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vladimir Beloplotov",
+                    "email": "cgartscorp@gmail.com"
+                }
+            ],
+            "description": "Checking the brackets in equations.",
+            "time": "2018-02-11T20:40:37+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "beloplotov/balance": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^7.0"
+    },
+    "platform-dev": []
+}

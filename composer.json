@@ -1,0 +1,11 @@
+{
+  "require": {
+    "php": "^7.0",
+    "beloplotov/balance": "dev-master"
+  },
+  "autoload":{
+    "psr-4":{
+      "Socket\\":"src/"
+    }
+  }
+}
