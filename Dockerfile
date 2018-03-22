@@ -1,6 +1,12 @@
-FROM ubuntu:16.04
+FROM php:7.2-cli
 
-RUN apt-get update
-RUN composer install
+RUN docker-php-ext-install pcntl
+RUN docker-php-ext-install sockets
 
-CMD php bin/server.php
+COPY . /var/www/server
+
+WORKDIR /var/www/server
+
+ENTRYPOINT [ "php", "bin/server.php", "" ]
+
+EXPOSE 4545
