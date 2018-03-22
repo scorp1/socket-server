@@ -1,168 +1,181 @@
 <?php
+
 namespace Socket;
 
 use Beloplotov\Balance;
-use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Socket\CheckBracketsInSocket;
+use Socket\Exceptions\MySocketException;
+use Socket\Exceptions\MyErrorException;
 
 class SocketServer
 {
+    /**
+     * ip address socket-server
+     *
+     * @var string
+     */
     private $host = '';
 
+    /**
+     * number port socket-server
+     *
+     * @var int
+     */
     private $port = '';
 
+    /**
+     * socket_create variable
+     *
+     * @var null
+     */
     private $socket = null;
 
-    private $clients_socket = array();
+    /**
+     * array of socket clients
+     *
+     * @var array
+     */
+    private $SocketClients = array();
 
-    private $max_clients = 10;
+    /**
+     * max count clients
+     *
+     * @var int
+     */
+    private $maximumClientsSocket = 10;
 
-    private $read = array();
+    /**
+     * socket reading
+     *
+     * @var array
+     */
+    private $readSocket = array();
 
-    private $write = null;
+    /**
+     * write from a socket
+     *
+     * @var null
+     */
+    private $writeSocket = null;
 
-    private $error = null;
+    /**
+     * error-catching variable
+     *
+     * @var null
+     */
+    private $errorSocket = null;
 
-    private $balance_brackets = null;
+    /**
+     * brackets checking variable
+     *
+     * @var null
+     */
+    private $CheckBalanceBrackets = null;
 
-    public function __construct($host,$port)
+    /**
+     * SocketServer constructor.
+     *
+     * @param string $host
+     * @param int $port
+     */
+    public function __construct($host, $port)
     {
         $this->host = $host;
         $this->port = $port;
     }
 
     /**
-     * Создание сокета
+     * Create Socket-server
      */
     public function createSocket()
     {
-        if (($this->socket = socket_create(AF_INET,SOCK_STREAM,SOL_TCP)) === false){
-            throw new InvalidArgumentException("Не удалось создать сокет");
+        if (($this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) === false) {
+            throw new MySocketException();
         }
     }
 
     /**
-     * Привязка имени к сокету
+     * bind Socket-server
      */
     public function bindSocket()
     {
-        if ((socket_bind($this->socket,$this->host,$this->port)) === false){
+        if ((socket_bind($this->socket, $this->host, $this->port)) === false) {
             socket_strerror(socket_last_error($this->socket));
             die("Соединение Не установленно!\n");
-        }else{
-            echo "Соединение установленно \n";
         }
+        echo "Соединение установленно \n";
     }
 
     /**
-     * Прослушивание входящих соединений на сервере
+     * Listening for incoming connections on the server
+     *
+     * @throws MySocketException
      */
     public function listenSocket()
     {
-        if(socket_listen($this->socket) === false){
-            throw new InvalidArgumentException(socket_strerror(socket_last_error($this->socket)));
-        }else{
-            echo "Слушаю порт $this->port \n";
+        if (socket_listen($this->socket) === false) {
+            throw new MySocketException(socket_strerror(socket_last_error($this->socket)));
         }
+        echo "Слушаю порт $this->port \n";
     }
 
     /**
-     * Функция читает данные из сокета
+     * Reading data from the socket
+     *
      */
     public function readSocket()
     {
-        $this->read = array($this->socket);
+        $this->readSocket = array($this->socket);
     }
 
     /**
-     * Функция ожидает подключения чтобы прочитать сокет
+     * waits for a socket connection connection
      */
     public function selectSocket()
     {
-        $num_changed = socket_select($this->read,$this->write,$this->error,0,10);
-        if ($num_changed)
-        {
-            if (in_array($this->socket,$this->read))
-            {
+        $num_changed = socket_select($this->readSocket, $this->writeSocket, $this->errorSocket, 0, 10);
+        if ($num_changed) {
+            if (in_array($this->socket, $this->readSocket)) {
 
-                if (count($this->clients_socket) < $this->max_clients)
-                {
-                    $this->clients_socket[] = socket_accept($this->socket);
-                    echo "Accept connect (" . count($this->clients_socket) . "of $this->max_clients\n";
+                if (count($this->SocketClients) < $this->maximumClientsSocket) {
+                    $this->SocketClients[] = socket_accept($this->socket);
+
+                    echo "Accept connect (" . count($this->SocketClients) . "of $this->maximumClientsSocket\n";
                 }
-
             }
         }
     }
 
     /**
-     * Функция принимает соединение на сокете выполняет функцию проверки скобок
-     * И возвращает результат
+     * accepts the connection on the socket performs the function of checking parentheses and returns the result
      */
-
     public function acceptSocket()
     {
-        while (true)
-        {
+        while (true) {
             $this->selectSocket();
 
-            foreach ($this->clients_socket as $key => $client)
-            {
+            foreach ($this->SocketClients as $key => $client) {
 
-                if(in_array($client,$this->read))
-                {
-                    $input = socket_read($client,1024);
-
-                    if ($input === false){
+                if (in_array($client, $this->readSocket)) {
+                    $input = socket_read($client, 1024);
+                    if ($input === false) {
                         socket_shutdown($client);
-                        unset($this->clients_socket[$key]);
+                        unset($this->SocketClients[$key]);
                     }
-                    else
-                    {
+                    $resultCheckingBrackets = new CheckBracketsInSocket();
 
-                        $resultCheckingBrackets = $this->checkingBrackets($input);
-
-                        if (!@socket_write($client,"Ответ: $resultCheckingBrackets\n" ))
-                        {
+                        if (!@socket_write($client, "Ответ: {$resultCheckingBrackets->checkingBrackets($input)}\n")) {
                             socket_close($client);
-                            unset($this->clients_socket[$key]);
+                            unset($this->SocketClients[$key]);
                         }
-                    }
-                    if ($input === 'exit')
-                    {
+                    if ($input === 'exit') {
                         socket_shutdown($client);
                     }
                 }
             }//END FOREACH
-            $this->read = $this->clients_socket;
-            $this->read[] = $this->socket;
+            $this->readSocket = $this->SocketClients;
+            $this->readSocket[] = $this->socket;
         }//END WHILE
     }//END FUNCTION
-
-    /**
-     * Функции balanceBrackets проверка скобок
-     */
-    public function checkingBrackets($string)
-    {
-
-        try
-        {
-            $string = trim($string);
-            $this->balance_brackets = new \Beloplotov\Balance();
-            if($this->balance_brackets->balanceBrackets($string)['message'] == 'Недопустимые символы')
-            {
-                throw new \Exception("Недопустимые симовлы");
-            }
-            if($this->balance_brackets->balanceBrackets($string) !== true)
-            {
-                throw new \Exception("Ошибка ! Скобки стоят не верно!");
-            }
-            $output = "Все хорошо! Скобки стоят правильно";
-        }catch (\Exception $e)
-        {
-            return $output = $e->getMessage();
-        }
-        return $output;
-    }
-
 }
 

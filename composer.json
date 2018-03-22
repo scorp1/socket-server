@@ -1,6 +1,7 @@
 {
   "require": {
     "php": "^7.0",
+    "symfony/yaml": "^4.0",
     "beloplotov/balance": "dev-master"
   },
   "autoload":{

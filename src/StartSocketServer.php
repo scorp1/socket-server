@@ -1,26 +1,49 @@
 <?php
 namespace Socket;
+
 use Socket\SocketServer;
+use Socket\CheckBracketsInSocket;
 
 class StartSocketServer
 {
+    /**
+     * @var string
+     */
     public $host = '';
+
+    /**
+     * @var string
+     */
     public $port = '';
+
+    /**
+     * StartSocketServer constructor.
+     *
+     * @param $host
+     * @param $port
+     */
     public function __construct($host,$port)
     {
         $this->host = $host;
         $this->port = $port;
     }
 
+    /**
+     * start socket-server
+     */
     public function start()
     {
-        $NewSocketServer = new SocketServer($this->host,$this->port);
+        $newSocketServer = new SocketServer($this->host,$this->port);
 
-        $NewSocketServer->createSocket();
-        $NewSocketServer->bindSocket();
-        $NewSocketServer->listenSocket();
-        $NewSocketServer->readSocket();
-        $NewSocketServer->acceptSocket();
+        $newSocketServer->createSocket();
+
+        $newSocketServer->bindSocket();
+
+        $newSocketServer->listenSocket();
+
+        $newSocketServer->readSocket();
+
+        $newSocketServer->acceptSocket();
 
     }
 }

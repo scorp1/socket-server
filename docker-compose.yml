@@ -1,0 +1,11 @@
+version: '2'
+services:
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    volumes:
+      - "./web/src:/web/src"
+    ports:
+      - "8080:8080"
+

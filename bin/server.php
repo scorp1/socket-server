@@ -1,22 +1,12 @@
 <?php
 use Socket\StartSocketServer;
-
+use Symfony\Component\Yaml\Yaml;
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$shortopts = "p:";
-$longopts = array("port:","host:");
+$parserPort = Yaml::parseFile('cfg/config.yaml');
 
-$options = getopt($shortopts,$longopts);
-if(!isset($options['port']))
-{
-    die("Нужно указать параметры host (не обязательный параметр) и port!\n Например:   php server.php --host 127.0.0.1 --port 8080\n");
-}
-if(!isset($options['host']))
-{
-    $options['host'] = '127.0.0.1';
-}
-$host = $options['host'];
-$port = $options['port'];
+$host = '127.0.0.1';
+$port = $parserPort['port'];
 
 set_time_limit(0);
 
